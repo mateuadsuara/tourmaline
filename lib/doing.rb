@@ -1,13 +1,10 @@
 module Doing
   def doing(stop_value = nil, &producer)
     Enumerator.new do |yielder|
-      begin
-        loop do
-          value = producer.call
-          break if value.eql? stop_value
-          yielder.yield value
-        end
-      rescue Interrupt
+      loop do
+        value = producer.call
+        break if value.eql? stop_value
+        yielder.yield value
       end
     end.lazy
   end

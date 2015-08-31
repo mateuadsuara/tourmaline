@@ -20,16 +20,6 @@ RSpec.describe Doing do
       expect{enumerator.next}.to raise_error(StopIteration)
     end
 
-    it 'iterates until Interrupt is raised' do
-      values = [
-        ->(){1},
-        ->(){raise Interrupt}
-      ]
-      enumerator = doing{values.shift.call}
-      enumerator.next
-      expect{enumerator.next}.to raise_error(StopIteration)
-    end
-
     it 'lets the raised errors bubble up' do
       enumerator = doing{raise "error from iteration"}
       expect{enumerator.next}.to raise_error("error from iteration")
