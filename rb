@@ -5,5 +5,6 @@ include Doing
 
 begin
   eval(ARGV.join(" "))
+rescue Errno::EPIPE
 rescue Interrupt
 end
