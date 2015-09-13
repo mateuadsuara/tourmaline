@@ -15,4 +15,4 @@ A gem to pipe ruby code in the command line
 
 `rb 'lines.upcase.take_while{|l| !l.include?("QUIT")}.puts.each'`
 
-`rb 'doing{rand(1..6)}.puts.each'`
+`rb 'doing{rand(1..6)}.print.each'`
