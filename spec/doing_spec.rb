@@ -34,6 +34,31 @@ RSpec.describe Doing do
       expect(enumerator.next).to eq(2)
     end
 
+    it 'can take up to n elements' do
+      values = [1, 2, 3, 4]
+      enumerator = doing{values.shift}.take(1)
+      expect(enumerator.next).to eq(1)
+      expect{enumerator.next}.to raise_error(StopIteration)
+    end
+
+    it 'returns fluent enumerator after taking n elements' do
+      enumerator = doing{rand}
+      expect(enumerator.take(0).class).to eq(enumerator.class)
+    end
+
+    it 'can take elements while a predicate dictates' do
+      values = [1, 2, 3, 4]
+      enumerator = doing{values.shift}.take_while{|v| v < 3}
+      expect(enumerator.next).to eq(1)
+      expect(enumerator.next).to eq(2)
+      expect{enumerator.next}.to raise_error(StopIteration)
+    end
+
+    it 'returns fluent enumerator after take_while' do
+      enumerator = doing{rand}
+      expect(enumerator.take_while{false}.class).to eq(enumerator.class)
+    end
+
     it 'can do something with each value' do
       values = [1, 2, 3, 4]
       acc = 0

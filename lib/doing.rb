@@ -27,6 +27,14 @@ module Doing
       LazyEnum.new(super(&transformation))
     end
 
+    def take(n)
+      LazyEnum.new(super(n))
+    end
+
+    def take_while(&predicate)
+      LazyEnum.new(super(&predicate))
+    end
+
     def each(&side_effect)
       return super(){} if side_effect.nil?
       super(&side_effect)
