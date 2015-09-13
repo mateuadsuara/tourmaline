@@ -8,45 +8,49 @@ module Doing
       end
     end
 
-    LazyEnum.new(enumerator)
+    FluentEnumerator.new(enumerator)
   end
 
   private
-  class LazyEnum < Enumerator::Lazy
-    def initialize(enum)
-      super(enum) do |yielder, *values|
+  class FluentEnumerator
+    def initialize(base_enumerator)
+      @enum = Enumerator::Lazy.new(base_enumerator) do |yielder, *values|
         yielder.yield *values
       end
     end
 
-    def select(&predicate)
-      LazyEnum.new(super(&predicate))
+    def next
+      @enum.next
     end
 
-    def map(&transformation)
-      LazyEnum.new(super(&transformation))
+    def each(&block)
+      block ||= Proc.new{}
+      @enum.each(&block)
     end
 
-    def take(n)
-      LazyEnum.new(super(n))
+    def select(*args, &block)
+      self.class.new(@enum.send(:select, *args, &block))
     end
 
-    def take_while(&predicate)
-      LazyEnum.new(super(&predicate))
+    def map(*args, &block)
+      self.class.new(@enum.send(:map, *args, &block))
     end
 
-    def each(&side_effect)
-      return super(){} if side_effect.nil?
-      super(&side_effect)
+    def take(*args, &block)
+      self.class.new(@enum.send(:take, *args, &block))
     end
 
-    def method_missing(method, *args)
-      return select{|e| e.send(method, *args)} if predicate?(method)
+    def take_while(*args, &block)
+      self.class.new(@enum.send(:take_while, *args, &block))
+    end
+
+    def method_missing(method, *args, &block)
+      return select{|e| e.send(method, *args, &block)} if predicate?(method)
       map do |e|
         if e.respond_to?(method)
-          e.send(method, *args)
+          e.send(method, *args, &block)
         else
-          Kernel.send(method, e)
+          Kernel.send(method, *args.clone.unshift(e), &block)
         end
       end
     end

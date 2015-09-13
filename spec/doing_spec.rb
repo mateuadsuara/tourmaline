@@ -77,11 +77,35 @@ RSpec.describe Doing do
       expect(returned_after_each).to be(nil)
     end
 
+    class ElementPredicateSpy
+      attr_reader :result, :received_args, :received_block
+
+      def initialize(result)
+        @result = result
+      end
+
+      def predicate?(*args, &block)
+        @received_args = args
+        @received_block = block
+
+        result
+      end
+    end
+
     it 'selects the elements that match a predicate finished in ?' do
-      values = ["ab", "ac", "bb", "bc"]
-      enumerator = doing{values.shift}.start_with?("ac")
-      expect(enumerator.next).to eq("ac")
+      selected_element = ElementPredicateSpy.new(true)
+      unselected_element = ElementPredicateSpy.new(false)
+      values = [unselected_element, selected_element]
+      block = Proc.new{}
+
+      enumerator = doing{values.shift}.predicate?("argument", &block)
+
+      expect(enumerator.next).to be(selected_element)
       expect{enumerator.next}.to raise_error(StopIteration)
+      expect(unselected_element.received_args).to eq(["argument"])
+      expect(unselected_element.received_block).to be(block)
+      expect(selected_element.received_args).to eq(["argument"])
+      expect(selected_element.received_block).to be(block)
     end
 
     it 'selects the elements that match several predicates' do
@@ -91,12 +115,44 @@ RSpec.describe Doing do
       expect{enumerator.next}.to raise_error(StopIteration)
     end
 
-    it 'maps the elements with a method that is not a predicate' do
-      values = [1, 2]
-      enumerator = doing{values.shift}.succ
-      expect(enumerator.next).to eq(2)
-      expect(enumerator.next).to eq(3)
+    it 'forwards the include? predicate as a selection of the elements' do
+      values = ["ab", "ac", "bb", "bc"]
+      enumerator = doing{values.shift}.include?("a")
+      expect(enumerator.next).to eq("ab")
+      expect(enumerator.next).to eq("ac")
       expect{enumerator.next}.to raise_error(StopIteration)
+    end
+
+    class ElementTransformationSpy
+      attr_reader :result, :received_args, :received_block
+
+      def initialize(result)
+        @result = result
+      end
+
+      def transformation(*args, &block)
+        @received_args = args
+        @received_block = block
+
+        result
+      end
+    end
+
+    it 'maps the elements with a method that is not a predicate' do
+      transforms_to_1_element = ElementTransformationSpy.new(1)
+      transforms_to_2_element = ElementTransformationSpy.new(2)
+      values = [transforms_to_1_element, transforms_to_2_element]
+      block = Proc.new{}
+
+      enumerator = doing{values.shift}.transformation("argument", &block)
+
+      expect(enumerator.next).to eq(1)
+      expect(enumerator.next).to eq(2)
+      expect{enumerator.next}.to raise_error(StopIteration)
+      expect(transforms_to_1_element.received_args).to eq(["argument"])
+      expect(transforms_to_1_element.received_block).to be(block)
+      expect(transforms_to_2_element.received_args).to eq(["argument"])
+      expect(transforms_to_2_element.received_block).to be(block)
     end
 
     it 'maps the elements with several methods that are not predicates' do
@@ -107,15 +163,16 @@ RSpec.describe Doing do
       expect{enumerator.next}.to raise_error(StopIteration)
     end
 
-    it 'chaining an undefined method will asume is defined in Kernel' do
-      values = ["value"]
-      enumerator = doing{values.shift}.global_method
-      expect(enumerator.next).to eq("global method result for value")
-      expect{enumerator.next}.to raise_error(StopIteration)
+    def Kernel.global_method(*args, &block)
+      "global method result for #{args.inspect} using #{yield 'content'}"
     end
 
-    def Kernel.global_method(argument)
-      "global method result for #{argument}"
+    it 'chaining an undefined method will asume is defined in Kernel' do
+      values = ["value1", "value2"]
+      enumerator = doing{values.shift}.global_method("argument1"){|v|"block_"+v}
+      expect(enumerator.next).to eq('global method result for ["value1", "argument1"] using block_content')
+      expect(enumerator.next).to eq('global method result for ["value2", "argument1"] using block_content')
+      expect{enumerator.next}.to raise_error(StopIteration)
     end
   end
 end
