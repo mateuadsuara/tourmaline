@@ -1,4 +1,5 @@
-![](https://raw.githubusercontent.com/demonh3x/tourmaline/master/img/logo200.jpg)
+#Tourmaline
+![Tourmaline logo](https://raw.githubusercontent.com/demonh3x/tourmaline/master/img/logo200.jpg)
 
 A gem to pipe ruby code in the command line
 
