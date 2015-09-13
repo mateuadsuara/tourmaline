@@ -28,6 +28,10 @@ module Doing
       @enum.each(&block)
     end
 
+    def inject(*args, &block)
+      @enum.send(:inject, *args, &block)
+    end
+
     def select(*args, &block)
       self.class.new(@enum.send(:select, *args, &block))
     end

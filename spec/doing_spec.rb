@@ -70,11 +70,19 @@ RSpec.describe Doing do
     it 'consumes the lazyness when called each without a block' do
       values = [1, 2, 3, 4]
       acc = 0
-      enumerator = doing{values.shift}.map{|v| acc += v; v}
+      enumerator = doing{values.shift}.map{|v| acc += v}
       expect(acc).to eq(0)
       returned_after_each = enumerator.each
       expect(acc).to eq(10)
       expect(returned_after_each).to be(nil)
+    end
+
+    it 'injects each element into an accumulator' do
+      values = [1, 2, 3, 4]
+      result = doing{values.shift}.inject(0) do |accumulator, element|
+        accumulator + element
+      end
+      expect(result).to eq(10)
     end
 
     class ElementPredicateSpy
