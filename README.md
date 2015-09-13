@@ -11,7 +11,7 @@ A gem to pipe ruby code in the command line
 ### Examples
 `ping www.google.com | rb 'lines.include?("time=").split("time=")[1].puts.each'`
 
-`echo -e '1\n5\n3\n7\n' | rb 'puts lines.to_i.take(3).inject(0){|acc,num| acc + num}'`
+`echo -e '1\n5\n3\n7\n' | rb 'puts lines.to_i.take(3).inject(:+)'`
 
 `rb 'lines.upcase.take_while{|l| !l.include?("QUIT")}.puts.each'`
 
