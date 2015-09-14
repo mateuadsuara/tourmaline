@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |gem|
   gem.name          = "tourmaline"
-  gem.version       = "0.1.0"
+  gem.version       = "0.1.1"
   gem.authors       = ["Mateu Adsuara"]
   gem.email         = ["mateuadsuara@gmail.com"]
 
@@ -17,6 +17,5 @@ Gem::Specification.new do |gem|
   gem.executables   = ["rb"]
   gem.require_paths = ["lib"]
 
-  gem.add_development_dependency "bundler", "~> 1.9"
-  gem.add_development_dependency "rake", "~> 10.0"
+  gem.add_development_dependency "rspec"
 end
