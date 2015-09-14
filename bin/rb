@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
-require 'io/console'
+Dir[File.expand_path("~/.tourmaline/lib/*.rb")].each{|file|require file}
+
 require "doing"
 include Doing
-
 def lines
   doing{STDIN.gets}.map{|l|l.chomp}
 end
