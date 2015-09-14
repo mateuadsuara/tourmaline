@@ -1,7 +1,7 @@
 #Tourmaline
 ![Tourmaline logo](https://raw.githubusercontent.com/demonh3x/tourmaline/master/img/logo200.jpg)
 
-A gem to pipe ruby code in the command line
+A configurable ruby interpreter for the command line
 
 ### Setup
 * Clone this repo.
