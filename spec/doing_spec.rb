@@ -4,6 +4,10 @@ RSpec.describe Doing do
   include Doing
 
   describe 'doing' do
+    it 'raises error when no block is given' do
+      expect{doing}.to raise_error(ArgumentError, 'No block given')
+    end
+
     it 'iterates with the values returned by the block until is nil' do
       values = [1, 2, 3, nil, 5]
       enumerator = doing{values.shift}
@@ -118,7 +122,9 @@ RSpec.describe Doing do
 
     it 'selects the elements that match several predicates' do
       values = ["ab", "ac", "bb", "bc"]
-      enumerator = doing{values.shift}.start_with?("b").end_with?("b")
+      words = doing{values.shift}
+      enumerator = words.start_with?("b").end_with?("b")
+
       expect(enumerator.next).to eq("bb")
       expect{enumerator.next}.to raise_error(StopIteration)
     end
@@ -138,7 +144,7 @@ RSpec.describe Doing do
         @result = result
       end
 
-      def transformation(*args, &block)
+      def transform(*args, &block)
         @received_args = args
         @received_block = block
 
@@ -152,7 +158,7 @@ RSpec.describe Doing do
       values = [transforms_to_1_element, transforms_to_2_element]
       block = Proc.new{}
 
-      enumerator = doing{values.shift}.transformation("argument", &block)
+      enumerator = doing{values.shift}.transform("argument", &block)
 
       expect(enumerator.next).to eq(1)
       expect(enumerator.next).to eq(2)
