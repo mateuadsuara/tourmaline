@@ -1,3 +1,5 @@
+require 'forwardable'
+
 module Doing
   def doing(stop_value = nil, &block)
     raise ArgumentError.new('No block given') unless block_given?
@@ -16,44 +18,32 @@ module Doing
     end
   end
 
-    FluentEnumerator.new(enumerator)
+  module EnumeratorWrapper
+    def delegate_wrapping(*method_names)
+      method_names.each do |method_name|
+        define_method(method_name.to_s) do |*args, &block|
+          self.class.new(@enum.send(method_name, *args, &block))
+        end
+      end
+    end
   end
 
-  private
   class FluentEnumerator
+    extend EnumeratorWrapper
+    extend Forwardable
+
+    def_delegators :@enum, :next, :inject
+    delegate_wrapping :take_while, :take, :map, :select
+
     def initialize(base_enumerator)
       @enum = Enumerator::Lazy.new(base_enumerator) do |yielder, *values|
         yielder.yield *values
       end
     end
 
-    def next
-      @enum.next
-    end
-
     def each(&block)
       block ||= Proc.new{}
       @enum.each(&block)
-    end
-
-    def inject(*args, &block)
-      @enum.send(:inject, *args, &block)
-    end
-
-    def select(*args, &block)
-      self.class.new(@enum.send(:select, *args, &block))
-    end
-
-    def map(*args, &block)
-      self.class.new(@enum.send(:map, *args, &block))
-    end
-
-    def take(*args, &block)
-      self.class.new(@enum.send(:take, *args, &block))
-    end
-
-    def take_while(*args, &block)
-      self.class.new(@enum.send(:take_while, *args, &block))
     end
 
     def method_missing(method, *args, &block)
