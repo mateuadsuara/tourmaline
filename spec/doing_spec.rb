@@ -100,6 +100,10 @@ RSpec.describe Doing do
 
         result
       end
+
+      def predicate_without_question_mark(*args, &block)
+        predicate?(*args, &block)
+      end
     end
 
     it 'selects the elements that match a predicate finished in ?' do
@@ -109,6 +113,22 @@ RSpec.describe Doing do
       block = Proc.new{}
 
       enumerator = doing{values.shift}.predicate?("argument", &block)
+
+      expect(enumerator.next).to be(selected_element)
+      expect{enumerator.next}.to raise_error(StopIteration)
+      expect(unselected_element.received_args).to eq(["argument"])
+      expect(unselected_element.received_block).to be(block)
+      expect(selected_element.received_args).to eq(["argument"])
+      expect(selected_element.received_block).to be(block)
+    end
+
+    it 'selects the elements that match a predicate not finished in ?' do
+      selected_element = ElementPredicateSpy.new(true)
+      unselected_element = ElementPredicateSpy.new(false)
+      values = [unselected_element, selected_element]
+      block = Proc.new{}
+
+      enumerator = doing{values.shift}.predicate_without_question_mark?("argument", &block)
 
       expect(enumerator.next).to be(selected_element)
       expect{enumerator.next}.to raise_error(StopIteration)

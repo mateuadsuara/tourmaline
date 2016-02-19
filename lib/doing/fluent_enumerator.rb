@@ -34,7 +34,17 @@ module Doing
     end
 
     def select_elements(method, *args, &block)
-      select{|e| e.send(method, *args, &block)}
+      select do |e|
+        if e.respond_to?(method)
+          e.send(method, *args, &block)
+        elsif e.respond_to?(remove_question_marks(method))
+          e.send(remove_question_marks(method), *args, &block)
+        end
+      end
+    end
+
+    def remove_question_marks(method)
+      method.to_s.gsub(/\?/, "")
     end
 
     def map_elements(method, *args, &block)
