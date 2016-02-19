@@ -83,8 +83,12 @@ RSpec.describe Doing do
 
     it 'injects each element into an accumulator' do
       values = [1, 2, 3, 4]
-      result = doing{values.shift}.inject(:+)
-      expect(result).to eq(10)
+      expect(doing{values.shift}.inject(:+)).to eq(10)
+    end
+
+    it 'reduces the elements to a result' do
+      values = [1, 2, 3, 4]
+      expect(doing{values.shift}.reduce(:+)).to eq(10)
     end
 
     class ElementPredicateSpy

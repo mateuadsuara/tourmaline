@@ -6,7 +6,7 @@ module Doing
     extend EnumeratorWrapper
     extend Forwardable
 
-    def_delegators :enumerator, :next, :inject
+    def_delegators :enumerator, :next, :inject, :reduce
     wrap :take_while, :take, :map, :select
 
     def initialize(enumerator)
