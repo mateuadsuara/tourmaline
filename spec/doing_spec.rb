@@ -83,9 +83,7 @@ RSpec.describe Doing do
 
     it 'injects each element into an accumulator' do
       values = [1, 2, 3, 4]
-      result = doing{values.shift}.inject(0) do |accumulator, element|
-        accumulator + element
-      end
+      result = doing{values.shift}.inject(:+)
       expect(result).to eq(10)
     end
 
