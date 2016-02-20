@@ -1,12 +1,13 @@
 require 'forwardable'
 require_relative 'enumerator_wrapper'
+require_relative 'fluent_value'
 
 module Doing
   class FluentEnumerator
     extend EnumeratorWrapper
     extend Forwardable
 
-    def_delegators :enumerator, :next, :inject, :reduce
+    def_delegators :enumerator, :next
     wrap :take_while, :take, :map, :select
 
     def initialize(enumerator)
@@ -25,6 +26,11 @@ module Doing
         map_elements(method, *args, &block)
       end
     end
+
+    def inject(*args, &block)
+      FluentValue.new(enumerator.send(:inject, *args, &block))
+    end
+    alias_method :reduce, :inject
 
     private
     attr_reader :enumerator

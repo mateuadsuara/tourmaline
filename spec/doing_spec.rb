@@ -81,14 +81,16 @@ RSpec.describe Doing do
       expect(returned_after_each).to be(nil)
     end
 
-    it 'injects each element into an accumulator' do
+    it 'injects each element to a result' do
       values = [1, 2, 3, 4]
-      expect(doing{values.shift}.inject(:+)).to eq(10)
+      sum = doing{values.shift}.inject(:+)
+      expect(sum.it).to eq(10)
     end
 
     it 'reduces the elements to a result' do
       values = [1, 2, 3, 4]
-      expect(doing{values.shift}.reduce(:+)).to eq(10)
+      sum = doing{values.shift}.reduce(:+)
+      expect(sum.it).to eq(10)
     end
 
     class ElementPredicateSpy
@@ -209,6 +211,12 @@ RSpec.describe Doing do
       expect(enumerator.next).to eq('global method result for ["value1", "argument1"] using block_content')
       expect(enumerator.next).to eq('global method result for ["value2", "argument1"] using block_content')
       expect{enumerator.next}.to raise_error(StopIteration)
+    end
+
+    it 'chaining an undefined method on the reduced result will asume is defined in Kernel' do
+      values = [99]
+      execute = doing{values.shift}.reduce(:+).global_method("argument1"){|v|"block_"+v}
+      expect(execute.it).to eq('global method result for [99, "argument1"] using block_content')
     end
   end
 end
