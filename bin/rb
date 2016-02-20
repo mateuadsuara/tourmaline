@@ -8,7 +8,8 @@ def lines
 end
 
 begin
-  eval(ARGV.join(" "))
+  res = eval(ARGV.join(" "))
+  res.each if res.class == FluentEnumerator
 rescue Errno::EPIPE
 rescue Interrupt
 end
